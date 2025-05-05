@@ -39,3 +39,46 @@ class Order {
     };
   }
 }
+class OrderItem {
+  final String itemId;
+  final String productId;
+  final String productTitle;
+  final String sellerId;
+  final double price;
+  final int quantity;
+  final String snapshotImage;
+
+  OrderItem({
+    required this.itemId,
+    required this.productId,
+    required this.productTitle,
+    required this.sellerId,
+    required this.price,
+    required this.quantity,
+    required this.snapshotImage,
+  });
+
+  factory OrderItem.fromMap(Map<String, dynamic> map) {
+    return OrderItem(
+      itemId: map['itemId'],
+      productId: map['productId'],
+      productTitle: map['productTitle'],
+      sellerId: map['sellerId'],
+      price: (map['price'] as num).toDouble(),
+      quantity: map['quantity'],
+      snapshotImage: map['snapshotImage'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'itemId': itemId,
+      'productId': productId,
+      'productTitle': productTitle,
+      'sellerId': sellerId,
+      'price': price,
+      'quantity': quantity,
+      'snapshotImage': snapshotImage,
+    };
+  }
+}
