@@ -1,44 +1,88 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+OrderStatus orderStatusFromString(String status) {
+  return OrderStatus.values.firstWhere(
+    (e) => e.name == status,
+    orElse: () => OrderStatus.pending,
+  );
+}
+
+String orderStatusToString(OrderStatus status) => status.name;
+
+enum OrderStatus {
+  pending,
+  processing,
+  shipped,
+  delivered,
+  cancelled,
+  completed,
+}
+
 class Order {
   final String orderId;
-  final String productId;
   final String buyerId;
   final String sellerId;
+  final List<OrderItem> items;
+  final double totalAmount;
+  final OrderStatus status; // pending, shipped, delivered, etc.
   final DateTime orderDate;
-  final String status; // e.g. 'pending', 'shipped', 'completed'
+  final String deliveryAddress;
+  final String? paymentId; // from gateway (e.g., Stripe)
+  final bool isDeliveryConfirmed;
+  final DateTime? deliveredAt;
 
   Order({
     required this.orderId,
-    required this.productId,
     required this.buyerId,
     required this.sellerId,
-    required this.orderDate,
+    required this.items,
+    required this.totalAmount,
     required this.status,
+    required this.orderDate,
+    required this.deliveryAddress,
+    this.paymentId,
+    this.isDeliveryConfirmed = false,
+    this.deliveredAt,
   });
 
   factory Order.fromMap(Map<String, dynamic> map) {
     return Order(
       orderId: map['orderId'],
-      productId: map['productId'],
       buyerId: map['buyerId'],
       sellerId: map['sellerId'],
+      items: (map['items'] as List)
+          .map((e) => OrderItem.fromMap(e as Map<String, dynamic>))
+          .toList(),
+      totalAmount: (map['totalAmount'] as num).toDouble(),
+      status: orderStatusFromString(map['status']),
       orderDate: (map['orderDate'] as Timestamp).toDate(),
-      status: map['status'],
+      deliveryAddress: map['deliveryAddress'],
+      paymentId: map['paymentId'],
+      isDeliveryConfirmed: map['isDeliveryConfirmed'] ?? false,
+      deliveredAt: map['deliveredAt'] != null
+          ? (map['deliveredAt'] as Timestamp).toDate()
+          : null,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'orderId': orderId,
-      'productId': productId,
       'buyerId': buyerId,
       'sellerId': sellerId,
-      'orderDate': orderDate,
-      'status': status,
+      'items': items.map((e) => e.toMap()).toList(),
+      'totalAmount': totalAmount,
+      'status': orderStatusToString(status),
+      'orderDate': Timestamp.fromDate(orderDate),
+      'deliveryAddress': deliveryAddress,
+      'paymentId': paymentId,
+      'isDeliveryConfirmed': isDeliveryConfirmed,
+      'deliveredAt':
+          deliveredAt != null ? Timestamp.fromDate(deliveredAt!) : null,
     };
   }
 }
+
 class OrderItem {
   final String itemId;
   final String productId;
@@ -58,6 +102,8 @@ class OrderItem {
     required this.snapshotImage,
   });
 
+  double get subtotal => price * quantity;
+
   factory OrderItem.fromMap(Map<String, dynamic> map) {
     return OrderItem(
       itemId: map['itemId'],
@@ -65,7 +111,7 @@ class OrderItem {
       productTitle: map['productTitle'],
       sellerId: map['sellerId'],
       price: (map['price'] as num).toDouble(),
-      quantity: map['quantity'],
+      quantity: map['quantity'] as int,
       snapshotImage: map['snapshotImage'],
     );
   }
