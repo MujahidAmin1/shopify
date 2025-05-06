@@ -46,6 +46,13 @@ class _SignupPageState extends State<SignupPage> {
               ),
             ),
           ),
+          FilledButton(
+            onPressed: (){}, 
+            style: FilledButton.styleFrom(
+              backgroundColor: Color(0xff8E6CEF)
+            ),
+            child: Text('Sign Up'),
+            )
         ],
       ),
     );

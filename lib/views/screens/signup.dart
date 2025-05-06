@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shopify/views/widgets/google_signin_button.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -28,6 +29,7 @@ class _SignupPageState extends State<SignupPage> {
         children: [
           Text("Sign Up"),
           
+          GoogleSigninButton(text: 'Sign in with Google'),
         ],
       ),
     );
