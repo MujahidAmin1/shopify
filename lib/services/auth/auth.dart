@@ -29,7 +29,7 @@ class AuthService {
     }
   }
 
-  void signOut() async {
+  Future signOut() async {
     try {
       await FirebaseAuth.instance.signOut();
     } on FirebaseAuthException catch (e) {

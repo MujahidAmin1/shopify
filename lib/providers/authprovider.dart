@@ -34,6 +34,18 @@ class Authprovider extends ChangeNotifier {
     }
   }
 
+  Future signOut(BuildContext context) async {
+    try {
+      setLoading(true);
+      await _auth.signOut();
+      notifyListeners();
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      setLoading(false);
+    }
+  }
+
   Future createAcct(String username, String email, String password) async {
     try {
       setLoading(true);
@@ -43,6 +55,12 @@ class Authprovider extends ChangeNotifier {
           username: username,
           id: FirebaseAuth.instance.currentUser!.uid));
       await _auth.signIn(email, password);
-    } catch (e) {}
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        throw 'Email already exists';
+      }
+    } finally {
+      setLoading(false);
+    }
   }
 }

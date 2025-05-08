@@ -1,10 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shopify/services/database/database.dart';
+import 'package:shopify/utils/ktextStyle.dart';
 import 'package:shopify/views/screens/home.dart';
 
 FirebaseAuth _auth = FirebaseAuth.instance;
+DatabaseService service = DatabaseService();
 
 class GoogleSigninButton extends StatelessWidget {
   String text;
@@ -22,7 +25,7 @@ class GoogleSigninButton extends StatelessWidget {
           await _auth.signInWithCredential(GoogleAuthProvider.credential(
               idToken: googleAuth.idToken,
               accessToken: googleAuth.accessToken));
-          Navigator.pushReplacement(
+          await Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) {
@@ -43,15 +46,21 @@ class GoogleSigninButton extends StatelessWidget {
       onTap: () {
         _googleSignIn(context);
       },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
+      child: SizedBox(
+        height: 55,
+        child: Card(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           color: Colors.white,
-        ),
-        height: 40,
-        child: Row(
-          spacing: 10,
-          children: [Image.asset('assets/Google.png'), Text(text)],
+          elevation: 4,
+          child: Row(
+            spacing: 10,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/Google.png'),
+              Text(text, style: kTextStyle(size: 20, isBold: true)),
+            ],
+          ),
         ),
       ),
     );

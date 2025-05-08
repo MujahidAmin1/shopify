@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:shopify/providers/btm_navbar_provider.dart';
+import 'package:shopify/views/screens/navbar_screens/firstscreen.dart';
+import 'package:shopify/views/screens/navbar_screens/notification.dart';
+import 'package:shopify/views/screens/navbar_screens/order_screen.dart';
+import 'package:shopify/views/screens/navbar_screens/profile.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -7,12 +14,43 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+List<Widget> screens = [
+  Firstscreen(),
+  NotificationScreen(),
+  OrderScreen(),
+  ProfileScreen(),
+];
+
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
+    var btmNavBarProvider = Provider.of<BtmNavbarProvider>(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Hello"),
+      body: IndexedStack(
+        index: btmNavBarProvider.selectedIndex,
+        children: screens,
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: btmNavBarProvider.selectedIndex,
+        onDestinationSelected: btmNavBarProvider.changeIndex,
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Iconsax.home),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Iconsax.notification),
+            label: 'Notifications',
+          ),
+          NavigationDestination(
+            icon: Icon(Iconsax.bookmark),
+            label: 'Orders',
+          ),
+          NavigationDestination(
+            icon: Icon(Iconsax.profile_2user),
+            label: 'Profile',
+          ),
+        ],
       ),
     );
   }
