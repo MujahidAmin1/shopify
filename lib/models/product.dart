@@ -1,8 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum Category { work, personal, urgent }
+enum Category {
+  all,
+  electronics,
+  fashion,
+  furniture,
+  books,
+  sports,
+  stationery,
+  others,
+}
 
-enum OrderStatus { pending, inProgress, completed }
+enum OrderStatus { pending, inProgress, completed, cancelled }
 
 class Product {
   final String productId;
@@ -27,28 +36,28 @@ class Product {
     required this.imageUrls,
   });
   Product copyWith({
-  String? productId,
-  String? ownerId,
-  String? title,
-  String? description,
-  double? price,
-  String? category,
-  bool? isAvailable,
-  DateTime? datePosted,
-  List<String>? imageUrls,
-}) {
-  return Product(
-    productId: productId ?? this.productId,
-    ownerId: ownerId ?? this.ownerId,
-    title: title ?? this.title,
-    description: description ?? this.description,
-    price: price ?? this.price,
-    category: category ?? this.category,
-    isAvailable: isAvailable ?? this.isAvailable,
-    datePosted: datePosted ?? this.datePosted,
-    imageUrls: imageUrls ?? this.imageUrls,
-  );
-}
+    String? productId,
+    String? ownerId,
+    String? title,
+    String? description,
+    double? price,
+    String? category,
+    bool? isAvailable,
+    DateTime? datePosted,
+    List<String>? imageUrls,
+  }) {
+    return Product(
+      productId: productId ?? this.productId,
+      ownerId: ownerId ?? this.ownerId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      price: price ?? this.price,
+      category: category ?? this.category,
+      isAvailable: isAvailable ?? this.isAvailable,
+      datePosted: datePosted ?? this.datePosted,
+      imageUrls: imageUrls ?? this.imageUrls,
+    );
+  }
 
   factory Product.fromMap(Map<String, dynamic> map) {
     return Product(

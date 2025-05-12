@@ -8,15 +8,22 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Profile"),
-        ),
-        body: Center(
-            child: FilledButton(
-          onPressed: () {
-            context.read<Authprovider>().signOut(context);
-          },
-          child: Text("Signout"),
-        )));
+      appBar: AppBar(
+        title: Text("Profile"),
+      ),
+      body: Column(
+        children: [
+          CircleAvatar(
+            
+          ),
+          FilledButton(
+            onPressed: () {
+              context.read<Authprovider>().signOut(context);
+            },
+            child: Text("Signout"),
+          ),
+        ],
+      ),
+    );
   }
 }
