@@ -1,9 +1,13 @@
 import 'dart:io';
 
 import 'package:dotted_border/dotted_border.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shopify/models/product.dart';
+import 'package:shopify/services/database/database.dart';
+import 'package:uuid/uuid.dart';
 import '../widgets/imgBuildIconBtn.dart';
 
 class CreateProduct extends StatefulWidget {
@@ -14,6 +18,8 @@ class CreateProduct extends StatefulWidget {
 }
 
 class _CreateProductState extends State<CreateProduct> {
+  DatabaseService database = DatabaseService();
+  FirebaseAuth auth = FirebaseAuth.instance;
   late TextEditingController titleController;
   late TextEditingController descriptionController;
   late TextEditingController priceController;
@@ -81,6 +87,7 @@ class _CreateProductState extends State<CreateProduct> {
 
   @override
   Widget build(BuildContext context) {
+    int selectedIndex = 0;
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -92,6 +99,28 @@ class _CreateProductState extends State<CreateProduct> {
         child: Column(
           spacing: 15,
           children: [
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                spacing: 8,
+                children: Category.values
+                    .map(
+                      (value) => ChoiceChip(
+                        showCheckmark: false,
+                        selectedColor: Color(0xff8E6CEF),
+                        label: Text("${value.name[0].toUpperCase()}${value.name.substring(1)}"),
+                        selected: selectedIndex == value.index,
+                        onSelected: (bool selected) {
+                          setState(() {
+                            selectedIndex =
+                                selected ? value.index : selectedIndex;
+                          });
+                        },
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
             _selectedImages!.isEmpty
                 ? Center(
                     child: GestureDetector(
@@ -212,6 +241,26 @@ class _CreateProductState extends State<CreateProduct> {
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                   borderSide: BorderSide(color: Color(0xff8E6CEF), width: 2),
+                ),
+              ),
+            ),
+            SizedBox(
+              width: double
+                  .infinity,
+              child: FilledButton(
+                onPressed: () {
+                  database.createProduct(product: Product(productId: Uuid().v4(), ownerId: auth.currentUser!.uid, title: titleController.text, description: descriptionController.text, price: double.parse(priceController.text), category: Category.values[selectedIndex].name, isAvailable: true, datePosted: DateTime.now(), imageUrls: imageUrls,));
+                },
+                style: FilledButton.styleFrom(
+                  backgroundColor: Color(0xff8E6CEF),
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                child: Text(
+                  'Create Product',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),

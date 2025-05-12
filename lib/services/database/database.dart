@@ -20,8 +20,8 @@ class DatabaseService {
     }
   }
 
-  FutureVoid createProduct(Product product) async {
-    final productDoc = FirebaseFirestore.instance.collection("products").doc();
+  FutureVoid createProduct({required Product product}) async {
+    final productDoc = FirebaseFirestore.instance.collection("products").doc(product.productId);
     final newProd = Product(
       productId: productDoc.id,
       ownerId: product.ownerId,
