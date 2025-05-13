@@ -1,5 +1,9 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart' hide Order;
 import 'package:firebase_auth/firebase_auth.dart' hide User;
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:shopify/models/cart_item.dart';
 import 'package:shopify/models/order.dart';
 import 'package:shopify/models/product.dart';
@@ -20,20 +24,63 @@ class DatabaseService {
     }
   }
 
-  FutureVoid createProduct({required Product product}) async {
-    final productDoc = FirebaseFirestore.instance.collection("products").doc(product.productId);
-    final newProd = Product(
-      productId: productDoc.id,
-      ownerId: product.ownerId,
-      title: product.title,
-      description: product.description,
-      price: product.price,
-      category: product.category,
-      isAvailable: product.isAvailable,
-      datePosted: DateTime.now(),
-      imageUrls: product.imageUrls,
-    );
-    await productDoc.set(newProd.toMap());
+  Future<void> createProduct({
+    required Product product,
+    required List<File> imageFiles,
+  }) async {
+    try {
+      final productDoc = FirebaseFirestore.instance
+          .collection("products")
+          .doc(product.productId);
+      final productId = productDoc.id;
+
+      final imageUrls = await uploadProductImages(
+        productId: productId,
+        imageFiles: imageFiles,
+      );
+      final newProd = Product(
+        productId: productDoc.id,
+        ownerId: product.ownerId,
+        title: product.title,
+        description: product.description,
+        price: product.price,
+        category: product.category,
+        isAvailable: product.isAvailable,
+        datePosted: DateTime.now(),
+        imageUrls: imageUrls,
+      );
+      await productDoc.set(newProd.toMap());
+    } on Exception catch (e) {
+      log(e.toString());
+    }
+  }
+
+  Future<List<String>> uploadProductImages({
+    required String productId,
+    required List<File> imageFiles,
+  }) async {
+    try {
+      final storage = FirebaseStorage.instance;
+      List<String> downloadUrls = [];
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+
+      // Loop through the image files and upload each
+      for (int i = 0; i < imageFiles.length; i++) {
+        final ref =
+            storage.ref().child('products/$uid/$productId/image_$i.jpg');
+
+        final uploadTask = await ref.putFile(imageFiles[i]);
+
+        final url = await uploadTask.ref.getDownloadURL();
+
+        downloadUrls.add(url);
+      }
+
+      return downloadUrls;
+    } on Exception catch (e) {
+      log(e.toString());
+      throw Exception(e);
+    }
   }
 
   Future<void> createOrder(Order order) async {
@@ -130,9 +177,8 @@ class DatabaseService {
   Stream<List<Product>> getAllProducts() {
     try {
       final productDoc = _fire.collection("products");
-      return productDoc
-          .snapshots()
-          .map((snaps) => snaps.docs.map((doc) => Product.fromMap(doc.data())).toList());
+      return productDoc.snapshots().map((snaps) =>
+          snaps.docs.map((doc) => Product.fromMap(doc.data())).toList());
     } on Exception catch (e) {
       throw Exception(e);
     }
