@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:shopify/models/user.dart';
 import 'package:shopify/services/auth/auth.dart';
 import 'package:shopify/services/database/database.dart';
+import 'package:shopify/utils/navigate.dart';
 import 'package:shopify/views/screens/home.dart';
+import 'package:shopify/views/screens/sign_in.dart';
 
 class Authprovider extends ChangeNotifier {
   bool isLoading = false;
@@ -38,6 +40,7 @@ class Authprovider extends ChangeNotifier {
     try {
       setLoading(true);
       await _auth.signOut();
+      context.pushReplacement(SignInPage());
       notifyListeners();
     } catch (e) {
       debugPrint(e.toString());
