@@ -63,8 +63,6 @@ class DatabaseService {
       final storage = FirebaseStorage.instance;
       List<String> downloadUrls = [];
       final uid = FirebaseAuth.instance.currentUser!.uid;
-
-      // Loop through the image files and upload each
       for (int i = 0; i < imageFiles.length; i++) {
         final ref =
             storage.ref().child('products/$uid/$productId/image_$i.jpg');
@@ -75,7 +73,6 @@ class DatabaseService {
 
         downloadUrls.add(url);
       }
-
       return downloadUrls;
     } on Exception catch (e) {
       log(e.toString());
@@ -176,10 +173,14 @@ class DatabaseService {
 
   Stream<List<Product>> getAllProducts() {
     try {
+      if (_auth.currentUser == null) {
+        return Stream.value([]);
+      }
       final productDoc = _fire.collection("products");
       return productDoc.snapshots().map((snaps) =>
           snaps.docs.map((doc) => Product.fromMap(doc.data())).toList());
     } on Exception catch (e) {
+      log(e.toString());
       throw Exception(e);
     }
   }

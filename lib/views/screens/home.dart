@@ -35,23 +35,23 @@ class _MyHomePageState extends State<MyHomePage> {
         onDestinationSelected: btmNavBarProvider.changeIndex,
         destinations: [
           NavigationDestination(
-            selectedIcon: Icon(Iconsax.home_copy),
-            icon: Icon(Iconsax.home),
+            selectedIcon: Icon(Iconsax.home),
+            icon: Icon(Iconsax.home_copy),
             label: 'Home',
           ),
           const NavigationDestination(
-            selectedIcon: Icon(Iconsax.notification_copy),
-            icon: Icon(Iconsax.notification),
+            selectedIcon: Icon(Iconsax.notification),
+            icon: Icon(Iconsax.notification_copy),
             label: 'Notifications',
           ),
           const NavigationDestination(
-            selectedIcon: Icon(Iconsax.bookmark_copy),
-            icon: Icon(Iconsax.bookmark),
+            selectedIcon: Icon(Iconsax.bookmark),
+            icon: Icon(Iconsax.bookmark_copy),
             label: 'Orders',
           ),
           const NavigationDestination(
-            selectedIcon: Icon(Iconsax.profile_2user_copy),
-            icon: Icon(Iconsax.profile_2user),
+            selectedIcon: Icon(Iconsax.profile_2user),
+            icon: Icon(Iconsax.profile_2user_copy),
             label: 'Profile',
           ),
         ],

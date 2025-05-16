@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shopify/models/product.dart';
 import 'package:shopify/services/database/database.dart';
 import 'package:shopify/utils/navigate.dart';
+import 'package:shopify/views/widgets/category_chips.dart';
 import 'package:uuid/uuid.dart';
 import '../widgets/imgBuildIconBtn.dart';
 
@@ -102,27 +103,33 @@ class _CreateProductState extends State<CreateProduct> {
             Column(
               spacing: 15,
               children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
+                DottedBorder(
+                  padding: EdgeInsets.all(12),
+                  color: Colors.grey, // border color
+                  strokeWidth: 1.5,
+                  dashPattern: [6, 3], // [dash length, space length]
+                  borderType: BorderType.RRect,
+                  radius: Radius.circular(12),
+                  child: Wrap(
+                    runSpacing: 9,
                     spacing: 8,
-                    children: Category.values
-                        .map(
-                          (value) => ChoiceChip(
-                            showCheckmark: false,
-                            selectedColor: Color(0xff8E6CEF),
-                            label: Text(
-                                "${value.name[0].toUpperCase()}${value.name.substring(1)}"),
-                            selected: selectedIndex == value.index,
-                            onSelected: (bool selected) {
-                              setState(() {
-                                selectedIndex =
-                                    selected ? value.index : selectedIndex;
-                              });
-                            },
-                          ),
-                        )
-                        .toList(),
+                    children: [
+                      ...Category.values.map(
+                        (value) => CategoryChips(
+                          selectedColor: Color(0xff8E6CEF),
+                          label:
+                              "${value.name[0].toUpperCase()}${value.name.substring(1)}",
+                          isSelected: selectedIndex == value.index,
+                          onTap: () {
+                            setState(
+                              () {
+                                selectedIndex = value.index;
+                              },
+                            );
+                          },
+                        ),
+                      )
+                    ],
                   ),
                 ),
                 _selectedImages!.isEmpty
