@@ -44,7 +44,7 @@ class ProductDisplay extends StatelessWidget {
                 Text(description.length > 10
                     ? "${description.substring(0, 6)}..."
                     : description),
-                Text("\$${price.toStringAsFixed(2)}",
+                Text("₦${price.toStringAsFixed(2)}",
                     style: kTextStyle(isBold: true)),
               ],
             ),

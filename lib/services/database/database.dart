@@ -24,6 +24,11 @@ class DatabaseService {
     }
   }
 
+  Future<String> fetchUsername(String id) async {
+    final usernameDoc = await _fire.collection("users").doc(id).get();
+    return usernameDoc.data()!['username'];
+  }
+
   Future<void> createProduct({
     required Product product,
     required List<File> imageFiles,
@@ -183,5 +188,10 @@ class DatabaseService {
       log(e.toString());
       throw Exception(e);
     }
+  }
+
+  Future<User> getOwnerByProductId(String id) async {
+    final doc = await _fire.collection("users").doc(id).get();
+    return User.fromMap(doc.data()!);
   }
 }
