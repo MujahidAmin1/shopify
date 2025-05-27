@@ -1,15 +1,21 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:shopify/models/cart_item.dart';
 import 'package:shopify/models/product.dart';
 import 'package:shopify/services/database/database.dart';
 import 'package:shopify/utils/ktextStyle.dart';
 import 'package:shopify/utils/navigate.dart';
 import 'package:shopify/views/screens/userpage.dart';
+import 'package:shopify/views/widgets/google_signin_button.dart';
+import 'package:uuid/uuid.dart';
 
 class ProductDetailedScreen extends StatelessWidget {
+  final bool looped;
   final Product product;
-  const ProductDetailedScreen({super.key, required this.product});
+  const ProductDetailedScreen(
+      {super.key, required this.product, required this.looped});
 
   @override
   Widget build(BuildContext context) {
@@ -75,36 +81,41 @@ class ProductDetailedScreen extends StatelessWidget {
                     ),
                   ),
                   Text(product.description, style: kTextStyle(size: 20)),
-                  FutureBuilder(
-                    future: databaseService.fetchUsername(product.ownerId),
-                    builder: (context, snapshot) {
-                      return Text.rich(
-                        TextSpan(
-                          children: [
-                            const TextSpan(text: 'by '),
-                            TextSpan(
-                              text: snapshot.data,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
+                  looped
+                      ? SizedBox()
+                      : FutureBuilder(
+                          future:
+                              databaseService.fetchUsername(product.ownerId),
+                          builder: (context, snapshot) {
+                            return Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(text: 'by '),
+                                  TextSpan(
+                                    text: snapshot.data,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue,
+                                    ),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () async {
+                                        final userId = product.ownerId;
+                                        await context
+                                            .push(Userpage(userId: userId));
+                                      },
+                                  ),
+                                ],
                               ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () async {
-                                  final userId = product.ownerId;
-                                  await context.push(Userpage(userId: userId));
-                                },
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                  ),
+                            );
+                          }),
                   SizedBox(height: 5),
                   Text(
                     '₦${product.price.toStringAsFixed(2)}',
                     style: kTextStyle(isBold: true, size: 22),
                   ),
+                  Text("items in stock: ${product.quantity}",
+                      style: kTextStyle(color: Colors.green)),
                 ],
               ),
             ),
@@ -115,18 +126,31 @@ class ProductDetailedScreen extends StatelessWidget {
         children: [
           SizedBox(width: 20),
           IconButton(
-              onPressed: () {},
+              onPressed: () {
+                FirebaseAuth _auth = FirebaseAuth.instance;
+                var uuid = Uuid().v4();
+                CartItem cartItem = CartItem(
+                  userId: _auth.currentUser!.uid,
+                  productId: product.productId,
+                  cartItemId: uuid,
+                  addedAt: DateTime.now(),
+                );
+                databaseService.addToCart(cartItem);
+              },
               icon: Icon(Iconsax.shopping_cart),
               style: IconButton.styleFrom(backgroundColor: Colors.green)),
           FilledButton(
-              onPressed: () {},
-              style: FilledButton.styleFrom(
-                  backgroundColor: Color(0xff8E6CEF),
-                  minimumSize: Size(width * 0.83, 45),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12))),
-              child: Text("Place Order",
-                  style: kTextStyle(size: 20, color: Colors.white))),
+            onPressed: () {},
+            style: FilledButton.styleFrom(
+                backgroundColor: Color(0xff8E6CEF),
+                minimumSize: Size(width * 0.83, 45),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12))),
+            child: Text(
+              "Place Order",
+              style: kTextStyle(size: 20, color: Colors.white),
+            ),
+          ),
         ],
       ),
     );

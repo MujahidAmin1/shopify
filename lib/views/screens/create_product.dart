@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:another_flushbar/flushbar.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +11,7 @@ import 'package:shopify/models/product.dart';
 import 'package:shopify/providers/product_provider.dart';
 import 'package:shopify/services/database/database.dart';
 import 'package:shopify/utils/navigate.dart';
+import 'package:shopify/utils/quantity_selector.dart';
 import 'package:shopify/views/widgets/category_chips.dart';
 import 'package:uuid/uuid.dart';
 import '../widgets/imgBuildIconBtn.dart';
@@ -29,6 +30,8 @@ class _CreateProductState extends State<CreateProduct> {
   late TextEditingController titleController;
   late TextEditingController descriptionController;
   late TextEditingController priceController;
+  int quantity = 1;
+
   final List<File>? _selectedImages = [];
   final ImagePicker picker = ImagePicker();
 
@@ -93,7 +96,6 @@ class _CreateProductState extends State<CreateProduct> {
 
   @override
   Widget build(BuildContext context) {
-    var productProvider = Provider.of<ProductProvider>(context);
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -262,15 +264,18 @@ class _CreateProductState extends State<CreateProduct> {
                     ),
                   ),
                 ),
+                QuantitySelector(onChanged: (qty) {
+                  quantity = qty;
+                }),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: () async {
                       if (_selectedImages.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content:
-                                  Text("Please select at least one image.")),
+                        Flushbar(
+                          flushbarPosition: FlushbarPosition.TOP,
+                          title: 'Product created',
+                          icon: Icon(Icons.info_outline),
                         );
                         return;
                       }
@@ -284,6 +289,7 @@ class _CreateProductState extends State<CreateProduct> {
                       }
                       var uid = Uuid().v4();
                       final product = Product(
+                        quantity: quantity,
                         productId: uid,
                         ownerId: auth.currentUser!.uid,
                         title: titleController.text,
@@ -294,18 +300,13 @@ class _CreateProductState extends State<CreateProduct> {
                         datePosted: DateTime.now(),
                         imageUrls: [],
                       );
+                      database.createProduct(
+                          product: product, imageFiles: _selectedImages);
 
-                      productProvider.isLoading
-                          ? Center(
-                              child: SpinKitChasingDots(
-                              color: Colors.black,
-                            ))
-                          : productProvider.createProduct(
-                              product: product, imgFiles: _selectedImages);
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text("Product created successfully.")),
+                      Flushbar(
+                        flushbarPosition: FlushbarPosition.TOP,
+                        title: 'Product created',
+                        icon: Icon(Icons.info_outline),
                       );
 
                       context.pop();

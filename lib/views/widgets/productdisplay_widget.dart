@@ -31,7 +31,7 @@ class ProductDisplay extends StatelessWidget {
             child: Image.network(
               img,
               width: double.infinity,
-              height: 120,
+              height: 150,
               fit: BoxFit.cover,
             ),
           ),
@@ -40,10 +40,7 @@ class ProductDisplay extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: kTextStyle(size: 15)),
-                Text(description.length > 10
-                    ? "${description.substring(0, 6)}..."
-                    : description),
+                Text(title.length >= 15 ? title.substring(0,15) : title, style: kTextStyle(size: 15)),
                 Text("₦${price.toStringAsFixed(2)}",
                     style: kTextStyle(isBold: true)),
               ],

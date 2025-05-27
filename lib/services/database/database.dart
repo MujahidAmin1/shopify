@@ -44,6 +44,7 @@ class DatabaseService {
         imageFiles: imageFiles,
       );
       final newProd = Product(
+        quantity: product.quantity,
         productId: productDoc.id,
         ownerId: product.ownerId,
         title: product.title,
@@ -55,8 +56,10 @@ class DatabaseService {
         imageUrls: imageUrls,
       );
       await productDoc.set(newProd.toMap());
+      log(newProd.toString());
     } on Exception catch (e) {
       log(e.toString());
+      throw Exception(e);
     }
   }
 
@@ -145,19 +148,6 @@ class DatabaseService {
         .collection("products")
         .doc(product.productId);
     await productDoc.delete();
-  }
-
-  Future<Product?> getProductById(String productId) async {
-    final doc = await FirebaseFirestore.instance
-        .collection('products')
-        .doc(productId)
-        .get();
-
-    if (doc.exists) {
-      return Product.fromMap(doc.data()!);
-    } else {
-      return null;
-    }
   }
 
   Stream<List<Product>> getProductsByUser(String userId) {

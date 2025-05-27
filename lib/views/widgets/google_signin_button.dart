@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -6,8 +6,7 @@ import 'package:shopify/services/database/database.dart';
 import 'package:shopify/utils/ktextStyle.dart';
 import 'package:shopify/views/screens/home.dart';
 
-FirebaseAuth _auth = FirebaseAuth.instance;
-DatabaseService service = DatabaseService();
+
 
 class GoogleSigninButton extends StatelessWidget {
   String text;
@@ -16,6 +15,7 @@ class GoogleSigninButton extends StatelessWidget {
     required this.text,
   });
   FutureVoid _googleSignIn(BuildContext context) async {
+    FirebaseAuth _auth = FirebaseAuth.instance;
     final googleSignIn = GoogleSignIn();
     final googleAccount = await googleSignIn.signIn();
     if (googleAccount != null) {

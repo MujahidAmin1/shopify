@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: SpinKitSpinningLines(color: Colors.black));
-          } else if (snapshot.hasError) {
+          } else if (snapshot.hasError || !snapshot.hasData) {
             return Center(child: Text('Something went wrong!'));
           } else if (snapshot.hasData) {
             return MyHomePage();

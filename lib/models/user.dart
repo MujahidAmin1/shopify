@@ -4,13 +4,15 @@ class User {
   String id;
   String? profilePic;
   String? address;
-  User(
-      {required this.email,
-      required this.username,
-      required this.id,
-      this.address,
-      this.profilePic,
-      });
+  String? bio;
+  User({
+    required this.email,
+    required this.username,
+    required this.id,
+    this.address,
+    this.profilePic,
+    this.bio,
+  });
 
   Map<String, dynamic> toMap() {
     return {
@@ -19,6 +21,7 @@ class User {
       'id': id,
       'profilePic': profilePic,
       'address': address,
+      'bio': bio,
     };
   }
 
@@ -29,6 +32,7 @@ class User {
       id: map['id'] ?? '',
       profilePic: map['profilePic'] ?? '',
       address: map['address'] ?? '',
+      bio: map['bio'] ?? '',
     );
   }
 }

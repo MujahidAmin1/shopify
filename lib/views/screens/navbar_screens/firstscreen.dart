@@ -86,15 +86,19 @@ class _FirstscreenState extends State<Firstscreen> {
                   List<Product> product = snapshot.data!;
                   return Expanded(
                     child: GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
+                        crossAxisSpacing: 4,
+                        mainAxisSpacing: 4,
+                        mainAxisExtent: 220,
                       ),
                       itemCount: product.length,
                       itemBuilder: (context, index) {
                         return GestureDetector(
                           onTap: () {
-                            context.push(
-                                ProductDetailedScreen(product: product[index]));
+                            context.push(ProductDetailedScreen(
+                                product: product[index], looped: false));
                           },
                           child: ProductDisplay(
                             img: product[index].imageUrls.first,
