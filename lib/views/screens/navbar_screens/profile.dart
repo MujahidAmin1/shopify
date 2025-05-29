@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:shopify/providers/authprovider.dart';
 import 'package:shopify/services/database/database.dart';
 import 'package:shopify/utils/ktextStyle.dart';
+import 'package:shopify/utils/navigate.dart';
+import 'package:shopify/views/screens/cart_page.dart';
 import 'package:shopify/views/widgets/logout_alert.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -87,7 +89,7 @@ class ProfileScreen extends StatelessWidget {
                       }),
                       _buildTile(context, Icons.shopping_cart_outlined, 'Cart',
                           onTap: () {
-                        // Navigate to Cart
+                        context.push(CartPage());
                       }),
                       _buildTile(context, Icons.settings_outlined, 'Settings',
                           onTap: () {

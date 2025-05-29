@@ -8,7 +8,7 @@ import 'package:shopify/providers/authprovider.dart';
 import 'package:shopify/providers/btm_navbar_provider.dart';
 import 'package:shopify/providers/cartprovider.dart';
 import 'package:shopify/providers/product_provider.dart';
-import 'package:shopify/views/screens/signup.dart';
+import 'package:shopify/views/screens/auth%20signin/signup.dart';
 
 import 'views/screens/home.dart';
 

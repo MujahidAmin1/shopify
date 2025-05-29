@@ -5,7 +5,7 @@ import 'package:shopify/services/auth/auth.dart';
 import 'package:shopify/services/database/database.dart';
 import 'package:shopify/utils/navigate.dart';
 import 'package:shopify/views/screens/home.dart';
-import 'package:shopify/views/screens/sign_in.dart';
+import 'package:shopify/views/screens/auth%20signin/sign_in.dart';
 
 class Authprovider extends ChangeNotifier {
   bool isLoading = false;

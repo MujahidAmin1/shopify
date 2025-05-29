@@ -123,10 +123,39 @@ class DatabaseService {
           .doc(cartItem.userId)
           .collection("cart")
           .doc(cartItem.cartItemId);
-      await cartItemDoc.set(cartItem.toMap());
+      final cartItemSnapshot = await cartItemDoc.get();
+      if (cartItemSnapshot.exists) {
+        final existingData = cartItemSnapshot.data()!;
+        final existingQuantity = existingData['quantity'] ?? 1;
+        return cartItemDoc.update({'quantity': existingQuantity + 1});
+      } else {
+        await cartItemDoc.set(cartItem.toMap());
+      }
     } on Exception catch (e) {
       log(e.toString());
     }
+  }
+
+  Stream<List<CartItem>> readCartItems(String uid) {
+    if (_auth.currentUser == null) {
+      return Stream.value([]);
+    }
+    return _fire
+        .collection("users")
+        .doc(uid)
+        .collection("cart")
+        .snapshots()
+        .map(
+          (snaps) =>
+              snaps.docs.map((doc) => CartItem.fromMap(doc.data())).toList(),
+        );
+  }
+  Stream<List<Product>> getProductFromCartById(String id){
+    if (_auth.currentUser == null) {
+      return Stream.value([]);
+    }
+    
+
   }
 
   Future updateProduct(Product product) async {

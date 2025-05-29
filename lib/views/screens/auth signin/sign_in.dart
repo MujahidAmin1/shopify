@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 import 'package:shopify/providers/authprovider.dart';
-import 'package:shopify/views/screens/signup.dart';
+import 'package:shopify/views/screens/auth%20signin/signup.dart';
 import 'package:shopify/views/widgets/google_signin_button.dart';
 import 'package:shopify/utils/ktextStyle.dart';
 

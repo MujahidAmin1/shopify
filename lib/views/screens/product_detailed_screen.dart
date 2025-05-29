@@ -141,8 +141,8 @@ class ProductDetailedScreen extends StatelessWidget {
                 cartprovider.addToCart(cartItem);
                 Flushbar(
                   title: "Added to cart",
-                  message: "${product.title} has been added to your cart.",
-                  duration: Duration(seconds: 2),
+                  message: "Item added to your cart.",
+                  duration: Duration(seconds: 3),
                   icon: Icon(Icons.info_outline, color: Colors.green),
                   backgroundColor: Colors.black87,
                   borderRadius: BorderRadius.circular(8),
