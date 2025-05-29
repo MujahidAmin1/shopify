@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:shopify/firebase_options.dart';
 import 'package:shopify/providers/authprovider.dart';
 import 'package:shopify/providers/btm_navbar_provider.dart';
+import 'package:shopify/providers/cartprovider.dart';
 import 'package:shopify/providers/product_provider.dart';
 import 'package:shopify/views/screens/signup.dart';
 
@@ -20,6 +21,7 @@ void main() async {
     ChangeNotifierProvider(create: (_) => Authprovider()),
     ChangeNotifierProvider(create: (_) => BtmNavbarProvider()),
     ChangeNotifierProvider(create: (_) => ProductProvider()),
+    ChangeNotifierProvider(create: (_) => Cartprovider()),
   ], child: const MyApp()));
 }
 

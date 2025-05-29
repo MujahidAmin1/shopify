@@ -117,12 +117,16 @@ class DatabaseService {
   }
 
   Future addToCart(CartItem cartItem) async {
-    final cartItemDoc = FirebaseFirestore.instance
-        .collection("users")
-        .doc(cartItem.userId)
-        .collection("cart")
-        .doc();
-    await cartItemDoc.set(cartItem.toMap());
+    try {
+      final cartItemDoc = FirebaseFirestore.instance
+          .collection("users")
+          .doc(cartItem.userId)
+          .collection("cart")
+          .doc(cartItem.cartItemId);
+      await cartItemDoc.set(cartItem.toMap());
+    } on Exception catch (e) {
+      log(e.toString());
+    }
   }
 
   Future updateProduct(Product product) async {

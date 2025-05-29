@@ -1,14 +1,17 @@
+import 'package:another_flushbar/flushbar.dart';
+import 'package:another_flushbar/flushbar_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:shopify/models/cart_item.dart';
 import 'package:shopify/models/product.dart';
+import 'package:shopify/providers/cartprovider.dart';
 import 'package:shopify/services/database/database.dart';
 import 'package:shopify/utils/ktextStyle.dart';
 import 'package:shopify/utils/navigate.dart';
 import 'package:shopify/views/screens/userpage.dart';
-import 'package:shopify/views/widgets/google_signin_button.dart';
 import 'package:uuid/uuid.dart';
 
 class ProductDetailedScreen extends StatelessWidget {
@@ -19,6 +22,7 @@ class ProductDetailedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var cartprovider = context.watch<Cartprovider>();
     DatabaseService databaseService = DatabaseService();
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
@@ -122,37 +126,32 @@ class ProductDetailedScreen extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: Row(
-        children: [
-          SizedBox(width: 20),
-          IconButton(
+      floatingActionButton: cartprovider.getQuantity(product.productId) < 1
+          ? IconButton(
               onPressed: () {
                 FirebaseAuth _auth = FirebaseAuth.instance;
                 var uuid = Uuid().v4();
                 CartItem cartItem = CartItem(
+                  quantity: 1,
                   userId: _auth.currentUser!.uid,
                   productId: product.productId,
                   cartItemId: uuid,
                   addedAt: DateTime.now(),
                 );
-                databaseService.addToCart(cartItem);
+                cartprovider.addToCart(cartItem);
+                Flushbar(
+                  title: "Added to cart",
+                  message: "${product.title} has been added to your cart.",
+                  duration: Duration(seconds: 2),
+                  icon: Icon(Icons.info_outline, color: Colors.green),
+                  backgroundColor: Colors.black87,
+                  borderRadius: BorderRadius.circular(8),
+                  margin: EdgeInsets.all(12),
+                ).show(context);
               },
               icon: Icon(Iconsax.shopping_cart),
-              style: IconButton.styleFrom(backgroundColor: Colors.green)),
-          FilledButton(
-            onPressed: () {},
-            style: FilledButton.styleFrom(
-                backgroundColor: Color(0xff8E6CEF),
-                minimumSize: Size(width * 0.83, 45),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12))),
-            child: Text(
-              "Place Order",
-              style: kTextStyle(size: 20, color: Colors.white),
-            ),
-          ),
-        ],
-      ),
+              style: IconButton.styleFrom(backgroundColor: Colors.green))
+          : SizedBox(),
     );
   }
 }
