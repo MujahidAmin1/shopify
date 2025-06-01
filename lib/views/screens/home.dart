@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shopify/providers/btm_navbar_provider.dart';
+import 'package:shopify/utils/navigate.dart';
+import 'package:shopify/views/screens/create_product.dart';
 import 'package:shopify/views/screens/navbar_screens/firstscreen.dart';
 import 'package:shopify/views/screens/navbar_screens/notification.dart';
 import 'package:shopify/views/screens/navbar_screens/order_screen.dart';
@@ -31,6 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
         children: screens,
       ),
       bottomNavigationBar: NavigationBar(
+        indicatorColor: Color(0xff8E6CEF),
         selectedIndex: btmNavBarProvider.selectedIndex,
         onDestinationSelected: btmNavBarProvider.changeIndex,
         destinations: [
@@ -55,6 +58,14 @@ class _MyHomePageState extends State<MyHomePage> {
             label: 'Profile',
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Color(0xff8E6CEF),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50),
+        ),
+        onPressed: () => context.push(CreateProduct()),
+        child: Icon(Iconsax.additem),
       ),
     );
   }

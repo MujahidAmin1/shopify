@@ -34,11 +34,9 @@ class _ProductDetailedScreenState extends State<ProductDetailedScreen> {
 }
   @override
   Widget build(BuildContext context) {
-    FirebaseAuth _auth = FirebaseAuth.instance;
     var cartprovider = context.watch<Cartprovider>();
     DatabaseService databaseService = DatabaseService();
     double height = MediaQuery.of(context).size.height;
-    double width = MediaQuery.of(context).size.width;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -142,11 +140,11 @@ class _ProductDetailedScreenState extends State<ProductDetailedScreen> {
       floatingActionButton: cartprovider.getQuantity(widget.product.productId) < 1 
           ? IconButton(
               onPressed: () {
-                FirebaseAuth _auth = FirebaseAuth.instance;
+                FirebaseAuth auth = FirebaseAuth.instance;
                 var uuid = Uuid().v4();
                 CartItem cartItem = CartItem(
                   quantity: 1,
-                  userId: _auth.currentUser!.uid,
+                  userId: auth.currentUser!.uid,
                   productId: widget.product.productId,
                   cartItemId: uuid,
                   addedAt: DateTime.now(),
