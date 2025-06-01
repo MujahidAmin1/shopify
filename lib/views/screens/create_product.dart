@@ -264,7 +264,9 @@ class _CreateProductState extends State<CreateProduct> {
                     ),
                   ),
                 ),
-                QuantitySelector(onChanged: (qty) {
+                QuantitySelector(
+                  quantity: 1,
+                  onChanged: (qty) {
                   quantity = qty;
                 }),
                 SizedBox(

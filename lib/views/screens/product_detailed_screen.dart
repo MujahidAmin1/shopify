@@ -1,5 +1,4 @@
 import 'package:another_flushbar/flushbar.dart';
-import 'package:another_flushbar/flushbar_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -11,17 +10,31 @@ import 'package:shopify/providers/cartprovider.dart';
 import 'package:shopify/services/database/database.dart';
 import 'package:shopify/utils/ktextStyle.dart';
 import 'package:shopify/utils/navigate.dart';
+import 'package:shopify/utils/quantity_selector.dart';
 import 'package:shopify/views/screens/userpage.dart';
 import 'package:uuid/uuid.dart';
 
-class ProductDetailedScreen extends StatelessWidget {
+class ProductDetailedScreen extends StatefulWidget {
   final bool looped;
   final Product product;
   const ProductDetailedScreen(
       {super.key, required this.product, required this.looped});
 
   @override
+  State<ProductDetailedScreen> createState() => _ProductDetailedScreenState();
+}
+
+class _ProductDetailedScreenState extends State<ProductDetailedScreen> {
+  @override
+  void initState() {
+  super.initState();
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    Provider.of<Cartprovider>(context, listen: false).fetchCartItems();
+  });
+}
+  @override
   Widget build(BuildContext context) {
+    FirebaseAuth _auth = FirebaseAuth.instance;
     var cartprovider = context.watch<Cartprovider>();
     DatabaseService databaseService = DatabaseService();
     double height = MediaQuery.of(context).size.height;
@@ -32,12 +45,12 @@ class ProductDetailedScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 10,
           children: [
-            product.imageUrls.length <= 1
+            widget.product.imageUrls.length <= 1
                 ? ClipRRect(
                     borderRadius:
                         const BorderRadius.vertical(top: Radius.circular(12)),
                     child: Image.network(
-                      product.imageUrls.first,
+                      widget.product.imageUrls.first,
                       width: double.infinity,
                       height: height * 0.4,
                       fit: BoxFit.cover,
@@ -48,7 +61,7 @@ class ProductDetailedScreen extends StatelessWidget {
                     child: CarouselView(
                       scrollDirection: Axis.horizontal,
                       itemExtent: MediaQuery.of(context).size.width * 0.8,
-                      children: product.imageUrls
+                      children: widget.product.imageUrls
                           .map(
                             (img) => ClipRRect(
                               borderRadius: const BorderRadius.vertical(
@@ -71,7 +84,7 @@ class ProductDetailedScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(product.title,
+                  Text(widget.product.title,
                       style: kTextStyle(size: 28, isBold: true)),
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
@@ -80,16 +93,16 @@ class ProductDetailedScreen extends StatelessWidget {
                         color: Colors.amber,
                         borderRadius: BorderRadius.circular(6)),
                     child: Text(
-                      "${product.category[0].toUpperCase()}${product.category.substring(1)}",
+                      "${widget.product.category[0].toUpperCase()}${widget.product.category.substring(1)}",
                       style: kTextStyle(size: 10),
                     ),
                   ),
-                  Text(product.description, style: kTextStyle(size: 20)),
-                  looped
+                  Text(widget.product.description, style: kTextStyle(size: 20)),
+                  widget.looped
                       ? SizedBox()
                       : FutureBuilder(
                           future:
-                              databaseService.fetchUsername(product.ownerId),
+                              databaseService.fetchUsername(widget.product.ownerId),
                           builder: (context, snapshot) {
                             return Text.rich(
                               TextSpan(
@@ -104,7 +117,7 @@ class ProductDetailedScreen extends StatelessWidget {
                                     ),
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () async {
-                                        final userId = product.ownerId;
+                                        final userId = widget.product.ownerId;
                                         await context
                                             .push(Userpage(userId: userId));
                                       },
@@ -115,10 +128,10 @@ class ProductDetailedScreen extends StatelessWidget {
                           }),
                   SizedBox(height: 5),
                   Text(
-                    '₦${product.price.toStringAsFixed(2)}',
+                    '₦${widget.product.price.toStringAsFixed(2)}',
                     style: kTextStyle(isBold: true, size: 22),
                   ),
-                  Text("items in stock: ${product.quantity}",
+                  Text("items in stock: ${widget.product.quantity}",
                       style: kTextStyle(color: Colors.green)),
                 ],
               ),
@@ -126,7 +139,7 @@ class ProductDetailedScreen extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: cartprovider.getQuantity(product.productId) < 1
+      floatingActionButton: cartprovider.getQuantity(widget.product.productId) < 1 
           ? IconButton(
               onPressed: () {
                 FirebaseAuth _auth = FirebaseAuth.instance;
@@ -134,7 +147,7 @@ class ProductDetailedScreen extends StatelessWidget {
                 CartItem cartItem = CartItem(
                   quantity: 1,
                   userId: _auth.currentUser!.uid,
-                  productId: product.productId,
+                  productId: widget.product.productId,
                   cartItemId: uuid,
                   addedAt: DateTime.now(),
                 );
@@ -151,7 +164,23 @@ class ProductDetailedScreen extends StatelessWidget {
               },
               icon: Icon(Iconsax.shopping_cart),
               style: IconButton.styleFrom(backgroundColor: Colors.green))
-          : SizedBox(),
+          : QuantitySelector(
+            quantity: cartprovider.getQuantity(widget.product.productId),
+              onChanged: (qty) async {
+                final userId = FirebaseAuth.instance.currentUser!.uid;
+                final cartItemId =
+                    cartprovider.getCartItemId(widget.product.productId);
+                cartprovider.updateCart(
+                  CartItem(
+                    userId: userId,
+                    productId: widget.product.productId,
+                    cartItemId: cartItemId!,
+                    quantity: qty,
+                    addedAt: DateTime.now(),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

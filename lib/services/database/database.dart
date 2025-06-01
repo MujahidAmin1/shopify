@@ -94,7 +94,6 @@ class DatabaseService {
         .doc(order.orderId)
         .set(order.toMap());
 
-    // Now fetch the document to confirm its data or use it for further processing
     final productDoc = await FirebaseFirestore.instance
         .collection("orders")
         .doc(order.orderId)
@@ -118,44 +117,63 @@ class DatabaseService {
 
   Future addToCart(CartItem cartItem) async {
     try {
-      final cartItemDoc = FirebaseFirestore.instance
+      return _fire
           .collection("users")
           .doc(cartItem.userId)
           .collection("cart")
-          .doc(cartItem.cartItemId);
-      final cartItemSnapshot = await cartItemDoc.get();
-      if (cartItemSnapshot.exists) {
-        final existingData = cartItemSnapshot.data()!;
-        final existingQuantity = existingData['quantity'] ?? 1;
-        return cartItemDoc.update({'quantity': existingQuantity + 1});
-      } else {
-        await cartItemDoc.set(cartItem.toMap());
-      }
+          .doc(cartItem.cartItemId)
+          .set(
+            cartItem.toMap(),
+          );
     } on Exception catch (e) {
       log(e.toString());
     }
   }
 
-  Stream<List<CartItem>> readCartItems(String uid) {
-    if (_auth.currentUser == null) {
-      return Stream.value([]);
+  Future updateCartItem(CartItem cartItem) async {
+    try {
+      final updateDoc = _fire
+          .collection("users")
+          .doc(cartItem.userId)
+          .collection("cart")
+          .doc(cartItem.cartItemId);
+      await updateDoc.update(cartItem.toMap());
+    } on Exception catch (e) {
+      log(e.toString());
     }
-    return _fire
-        .collection("users")
-        .doc(uid)
-        .collection("cart")
-        .snapshots()
-        .map(
-          (snaps) =>
-              snaps.docs.map((doc) => CartItem.fromMap(doc.data())).toList(),
-        );
   }
-  Stream<List<Product>> getProductFromCartById(String id){
-    if (_auth.currentUser == null) {
-      return Stream.value([]);
-    }
-    
 
+  Future<List<CartItem>> readCartItems(String uid) async {
+    final cartItemDoc =
+        await _fire.collection("users").doc(uid).collection("cart").get();
+    return cartItemDoc.docs
+        .map(
+          (doc) => CartItem.fromMap(doc.data()),
+        )
+        .toList();
+  }
+
+  Future<int> getcartQuantity(String productId) async {
+    final cartItemDoc = await _fire
+        .collection("users")
+        .doc(_auth.currentUser!.uid)
+        .collection("cart")
+        .where('productId', isEqualTo: productId)
+        .get();
+    if (cartItemDoc.docs.isNotEmpty) {
+      return cartItemDoc.docs.first.data()['quantity'] ?? 0;
+    }
+    return 0;
+  }
+
+  Future<List<CartItem>> loadCartItems() async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final snapshot = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(userId)
+        .collection("cart")
+        .get();
+    return snapshot.docs.map((doc) => CartItem.fromMap(doc.data())).toList();
   }
 
   Future updateProduct(Product product) async {
@@ -197,6 +215,11 @@ class DatabaseService {
               (doc) => Product.fromMap(doc.data()),
             )
             .toList());
+  }
+
+  Future<Product> getProductById(String productId) async {
+    final productDoc = await _fire.collection("products").doc(productId).get();
+    return Product.fromMap(productDoc.data()!);
   }
 
   Stream<List<Product>> getAllProducts() {

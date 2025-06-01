@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
 class QuantitySelector extends StatefulWidget {
+  final int quantity;
   final Function(int quantity)? onChanged;
 
-  const QuantitySelector({super.key, this.onChanged});
+  const QuantitySelector({super.key, this.onChanged, required this.quantity});
 
   @override
   State<QuantitySelector> createState() => _QuantitySelectorState();
 }
 
 class _QuantitySelectorState extends State<QuantitySelector> {
-  int quantity = 1;
-
   void increment() {
+    int quantity = widget.quantity;
     setState(() {
       quantity++;
       widget.onChanged?.call(quantity);
@@ -20,6 +20,7 @@ class _QuantitySelectorState extends State<QuantitySelector> {
   }
 
   void decrement() {
+    int quantity = widget.quantity;
     if (quantity > 1) {
       setState(() {
         quantity--;
@@ -30,21 +31,37 @@ class _QuantitySelectorState extends State<QuantitySelector> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+  final quantity = widget.quantity;
+
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.surfaceVariant,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         IconButton(
-          icon: const Icon(Icons.remove),
           onPressed: quantity > 1 ? decrement : null,
+          icon: const Icon(Icons.remove),
+          color: quantity > 1
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).disabledColor,
         ),
         Text(
           quantity.toString(),
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
         ),
         IconButton(
-          icon: const Icon(Icons.add),
           onPressed: increment,
+          icon: const Icon(Icons.add),
+          color: Theme.of(context).colorScheme.primary,
         ),
       ],
-    );
-  }
+    ),
+  );
+}
 }
