@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shopify/utils/ktextStyle.dart';
+import 'package:shopify/utils/price_format.dart';
 
 class ProductDisplay extends StatelessWidget {
   final String title;
@@ -41,7 +42,7 @@ class ProductDisplay extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title.length >= 15 ? title.substring(0,15) : title, style: kTextStyle(size: 15)),
-                Text("₦${price.toStringAsFixed(2)}",
+                Text(formatNairaPrice(price),
                     style: kTextStyle(isBold: true)),
               ],
             ),

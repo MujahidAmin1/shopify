@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shopify/services/database/database.dart';
 import 'package:shopify/views/widgets/custom_cart_tile.dart';
+import 'package:intl/intl.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -46,12 +47,16 @@ class _CartPageState extends State<CartPage> {
                           return const Center(child: Text("User not found."));
                         } else {
                           final product = snapshot.data;
-
+                          String formattedPrice = NumberFormat.currency(
+                            locale:
+                                'en_NG',
+                            symbol: '₦',
+                          ).format(product!.price);
                           return CustomProductTile(
-                            title: product!.title,
+                            title: product.title,
                             imageUrl: product.imageUrls.first,
                             trailing: Text("${cartItems[index].quantity}"),
-                            subtitle: "₦${product.price.toStringAsFixed(2)}",
+                            subtitle: formattedPrice,
                           );
                         }
                       },
