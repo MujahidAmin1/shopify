@@ -118,7 +118,8 @@ class _FirstscreenState extends State<Firstscreen> {
                       return GestureDetector(
                         onTap: () {
                           context.push(ProductDetailedScreen(
-                              product: currentProduct, looped: false));
+                              product: currentProduct, looped: false,
+                              ));
                         },
                         child: ProductDisplay(
                           img: currentProduct.imageUrls.first,
