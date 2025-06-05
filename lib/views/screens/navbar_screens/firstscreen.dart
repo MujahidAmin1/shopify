@@ -5,7 +5,6 @@ import 'package:shopify/models/product.dart';
 import 'package:shopify/services/database/database.dart';
 import 'package:shopify/utils/ktextStyle.dart';
 import 'package:shopify/utils/navigate.dart';
-import 'package:shopify/utils/price_format.dart';
 import 'package:shopify/views/screens/product_detailed_screen.dart';
 import 'package:shopify/views/widgets/category_chips.dart';
 import 'package:shopify/views/widgets/productdisplay_widget.dart';

@@ -6,6 +6,10 @@ class Cartprovider with ChangeNotifier {
   List<CartItem> _cartItems = [];
   List<CartItem> get items => _cartItems;
   DatabaseService service = DatabaseService();
+  double get totalPrice =>
+      _cartItems.fold(0, (sum, item) => sum + item.price * item.quantity);
+  int get totalQuantity => _cartItems.fold(0, (sum, item) => sum + item.quantity);
+    List<CartItem> get cartItems => _cartItems;
 
   int getQuantity(String productId) {
     final matchingItems =

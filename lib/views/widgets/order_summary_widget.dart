@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shopify/utils/price_format.dart';
 
 class OrderSummarySection extends StatelessWidget {
   final double price;
@@ -30,7 +31,7 @@ class OrderSummarySection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildInfoRow('Price', '₦${price.toStringAsFixed(2)}'),
+          _buildInfoRow('Price', formatNairaPrice(price)),
           const SizedBox(height: 8),
           _buildInfoRow('Quantity', quantity.toString()),
           const SizedBox(height: 16),

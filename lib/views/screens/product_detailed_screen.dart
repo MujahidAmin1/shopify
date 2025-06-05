@@ -147,6 +147,7 @@ class _ProductDetailedScreenState extends State<ProductDetailedScreen> {
                   userId: auth.currentUser!.uid,
                   productId: widget.product.productId,
                   cartItemId: uuid,
+                  price: widget.product.price,
                   addedAt: DateTime.now(),
                 );
                 cartprovider.addToCart(cartItem);
@@ -170,6 +171,7 @@ class _ProductDetailedScreenState extends State<ProductDetailedScreen> {
                     cartprovider.getCartItemId(widget.product.productId);
                 cartprovider.updateCart(
                   CartItem(
+                    price: widget.product.price,
                     userId: userId,
                     productId: widget.product.productId,
                     cartItemId: cartItemId!,
