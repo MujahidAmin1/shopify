@@ -37,7 +37,10 @@ class OrderSummarySection extends StatelessWidget {
           const SizedBox(height: 16),
           FilledButton(
             onPressed: onPlaceOrder,
-            child: const Text('Place Order'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Color(0xff8E6CEF)
+            ),
+            child: const Text('Place Order')
           ),
         ],
       ),
@@ -49,7 +52,8 @@ class OrderSummarySection extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: const TextStyle(fontSize: 16)),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(value,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
       ],
     );
   }

@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:shopify/utils/ktextStyle.dart';
 
 class UserInfoWidget extends StatelessWidget {
-  Image? image;
-  String username;
-  String bio;
-  String? ratings;
-  String email;
-  UserInfoWidget({
+  final Image? image;
+  final String username;
+  final String bio;
+  final String? ratings;
+  final String email;
+
+  const UserInfoWidget({
     super.key,
     this.image,
     required this.username,
@@ -20,42 +21,81 @@ class UserInfoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 250,
-      width: double.infinity,
-      child: Stack(
-        fit: StackFit.loose,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Positioned(
-            left: 0,
-            top: 130,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(username, style: kTextStyle(size: 23, isBold: true)),
-                  Text(email),
-                  Text(bio),
-                  Text("Ratings: "),
-                ],
-              ),
-            ),
+          // Avatar
+          CircleAvatar(
+            radius: 40,
+            backgroundColor: Colors.blue.shade300,
+            backgroundImage: image?.image,
+            child: image == null
+                ? const Icon(Icons.person, size: 40, color: Colors.white)
+                : null,
           ),
-          Positioned(
-            top: 20,
-            left: 10,
-            child: CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.blue,
-            ),
-          ),
-          const Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Divider(
-              thickness: 1,
-              color: Colors.grey,
+          const SizedBox(width: 16),
+          // User Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  username,
+                  style: kTextStyle(
+                    size: 20,
+                    isBold: true,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  email,
+                  style: kTextStyle(
+                    size: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  bio,
+                  style: kTextStyle(
+                    size: 14,
+                    color: Colors.black54,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.star,
+                      size: 16,
+                      color: Colors.amber.shade700,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      ratings != null ? ratings! : 'No ratings',
+                      style: kTextStyle(
+                        size: 14,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

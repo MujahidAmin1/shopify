@@ -15,14 +15,9 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final DatabaseService services = DatabaseService();
     final FirebaseAuth _auth = FirebaseAuth.instance;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Profile"),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.black,
-      ),
       body: FutureBuilder(
         future: services.getOwnerByProductId(_auth.currentUser!.uid),
         builder: (context, snapshot) {
@@ -34,81 +29,96 @@ class ProfileScreen extends StatelessWidget {
             return const Center(child: Text("User not found."));
           } else {
             final user = snapshot.data!;
-            return Column(
-              children: [
-                // HEADER SECTION
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.indigo.shade400, Colors.indigo.shade700],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 40,
-                        backgroundColor: Colors.white, // Optional
+            return CustomScrollView(
+              slivers: [
+                // Header Section
+                SliverAppBar(
+                  expandedHeight: 280, // Increased to accommodate title
+                  pinned: true,
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  foregroundColor: Colors.white,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xff8E6CEF), Color(0xff6A1B9A)],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
                       ),
-                      const SizedBox(width: 20),
-                      Expanded(
+                      child: Center(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(user.username,
-                                style: kTextStyle(
-                                    size: 20,
-                                    isBold: true,
-                                    color: Colors.white)),
-                            const SizedBox(height: 5),
-                            Text(user.bio ?? "No bio",
-                                style: kTextStyle(
-                                    size: 14, color: Colors.white70)),
-                            const SizedBox(height: 5),
-                            Text("Ratings: ★★★★☆",
-                                style: kTextStyle(
-                                    size: 14, color: Colors.white70)),
+                            const SizedBox(height: 20),
+                            Text(
+                              "Profile",
+                              style: kTextStyle(
+                                size: 24,
+                                color: Colors.white,
+                                isBold: true,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Colors.white,
+                              child: Icon(Icons.person, size: 50, color: Colors.grey),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              user.username,
+                              style: kTextStyle(size: 28, color: Colors.white, isBold: true),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              user.bio ?? "No bio",
+                              style: kTextStyle(size: 16, color: Colors.white70),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                for (int i = 0; i < 5; i++)
+                                  Icon(
+                                    i < 4 ? Icons.star : Icons.star_border,
+                                    color: Colors.yellow,
+                                    size: 18,
+                                  ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
-
-                // MENU OPTIONS
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.all(20),
-                    children: [
-                      _buildTile(context, Icons.shopping_bag_outlined, 'Orders',
-                          onTap: () {
+                // Menu Options Section
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      _buildMenuCard(context, Icons.shopping_bag_outlined, 'Orders', () {
                         // Navigate to Orders
-                      }),
-                      _buildTile(context, Icons.shopping_cart_outlined, 'Cart',
-                          onTap: () {
+                      }, theme),
+                      _buildMenuCard(context, Icons.shopping_cart_outlined, 'Cart', () {
                         context.push(CartPage());
-                      }),
-                      _buildTile(context, Icons.settings_outlined, 'Settings',
-                          onTap: () {
+                      }, theme),
+                      _buildMenuCard(context, Icons.settings_outlined, 'Settings', () {
                         // Navigate to Settings
-                      }),
+                      }, theme),
                       const SizedBox(height: 20),
-                      const Divider(),
+                      Divider(color: Colors.grey.shade300),
                       const SizedBox(height: 10),
-                      _buildTile(context, Icons.logout, 'Logout', onTap: () {
-                        showLogoutConfirmationDialog(
-                          context,
-                          () {
-                            context.read<Authprovider>().signOut(context);
-                          },
-                        );
-                      }, color: Colors.red),
-                    ],
+                      _buildMenuCard(context, Icons.logout, 'Logout', () {
+                        showLogoutConfirmationDialog(context, () {
+                          context.read<Authprovider>().signOut(context);
+                        });
+                      }, theme, color: Colors.red),
+                    ]),
                   ),
-                )
+                ),
               ],
             );
           }
@@ -117,55 +127,35 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTile(
+  Widget _buildMenuCard(
     BuildContext context,
     IconData icon,
-    String title, {
-    required VoidCallback onTap,
+    String title,
+    VoidCallback onTap,
+    ThemeData theme, {
     Color? color,
   }) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Ink(
-        decoration: BoxDecoration(
-          color: isDark
-              ? Colors.grey.shade800
-              : theme.colorScheme.surfaceVariant.withOpacity(0.15),
-          borderRadius: BorderRadius.circular(16),
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        leading: Icon(
+          icon,
+          color: color ?? Color(0xff8E6CEF),
+          size: 28,
         ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                Icon(
-                  icon,
-                  color: color ?? theme.colorScheme.primary,
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: kTextStyle(
-                      size: 16,
-                      color: color ?? theme.colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-                const Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 16,
-                  color: Colors.grey,
-                ),
-              ],
-            ),
-          ),
+        title: Text(
+          title,
+          style: kTextStyle(size: 16, color: theme.colorScheme.onSurface, isBold: true),
         ),
+        trailing: Icon(
+          Icons.arrow_forward_ios_rounded,
+          size: 16,
+          color: Colors.grey,
+        ),
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
     );
   }
