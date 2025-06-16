@@ -27,13 +27,16 @@ class ProductDisplay extends StatelessWidget {
         spacing: 4,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: Image.network(
-              img,
-              width: double.infinity,
-              height: 150,
-              fit: BoxFit.cover,
+          Hero(
+            tag: 'product-image-${img}',
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              child: Image.network(
+                img,
+                width: double.infinity,
+                height: 150,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           Padding(
@@ -41,9 +44,9 @@ class ProductDisplay extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title.length >= 15 ? title.substring(0,15) : title, style: kTextStyle(size: 15)),
-                Text(formatNairaPrice(price),
-                    style: kTextStyle(isBold: true)),
+                Text(title.length >= 15 ? title.substring(0, 15) : title,
+                    style: kTextStyle(size: 15)),
+                Text(formatNairaPrice(price), style: kTextStyle(isBold: true)),
               ],
             ),
           ),

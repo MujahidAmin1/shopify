@@ -88,31 +88,44 @@ class DatabaseService {
     }
   }
 
+  Map<String, List<CartItem>> groupItemsBySeller(List<CartItem> items) {
+    final Map<String, List<CartItem>> grouped = {};
+    for (var item in items) {
+      grouped.putIfAbsent(item.sellerId, () => []).add(item);
+    }
+    return grouped;
+  }
+
+  Future<void> clearCart(String uid) async {
+    final cartDoc =
+        await _fire.collection("users").doc(uid).collection("cart").get();
+    final batch = _fire.batch();
+    for (var cart in cartDoc.docs) {
+      batch.delete(cart.reference);
+      await batch.commit();
+    }
+  }
+
   Future<void> createOrder(Order order) async {
-    await FirebaseFirestore.instance
+    try {
+      final orderDoc = _fire.collection("orders").doc(order.orderId);
+      await orderDoc.set(order.toMap());
+      log(order.toString());
+    } on Exception catch (e) {
+      log(e.toString());
+    }
+  }
+
+  Stream<List<Order>> readOrderByUid(String uid) {
+    if (_auth.currentUser == null) {
+      return Stream.value([]);
+    }
+    return _fire
         .collection("orders")
-        .doc(order.orderId)
-        .set(order.toMap());
-
-    final productDoc = await FirebaseFirestore.instance
-        .collection("orders")
-        .doc(order.orderId)
-        .get();
-
-    // Now you can work with productDoc and its data
-    final productData = productDoc.data()!;
-    final orderItem = Order(
-      orderId: order.orderId,
-      buyerId: order.buyerId,
-      sellerId: order.sellerId,
-      items: List.from(productData['items'] ?? []),
-      totalAmount: productData['totalAmount'],
-      status: order.status,
-      orderDate: productData['orderDate'],
-      deliveryAddress: productData['deliveryAddress'],
-    );
-
-    await productDoc.reference.set(orderItem.toMap());
+        .where("buyerId", isEqualTo: uid)
+        .snapshots()
+        .map((snaps) =>
+            snaps.docs.map((doc) => Order.fromMap(doc.data())).toList());
   }
 
   Future addToCart(CartItem cartItem) async {

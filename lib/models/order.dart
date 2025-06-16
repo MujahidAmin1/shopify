@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shopify/models/cart_item.dart';
 
 OrderStatus orderStatusFromString(String status) {
   return OrderStatus.values.firstWhere(
@@ -12,6 +13,7 @@ String orderStatusToString(OrderStatus status) => status.name;
 enum OrderStatus {
   pending,
   processing,
+  paid,
   shipped,
   delivered,
   cancelled,
@@ -21,8 +23,7 @@ enum OrderStatus {
 class Order {
   final String orderId;
   final String buyerId;
-  final String sellerId;
-  final List<OrderItem> items;
+  final List<CartItem> items;
   final double totalAmount;
   final OrderStatus status; // pending, shipped, delivered, etc.
   final DateTime orderDate;
@@ -34,7 +35,6 @@ class Order {
   Order({
     required this.orderId,
     required this.buyerId,
-    required this.sellerId,
     required this.items,
     required this.totalAmount,
     required this.status,
@@ -44,14 +44,38 @@ class Order {
     this.isDeliveryConfirmed = false,
     this.deliveredAt,
   });
+  Order copyWith({
+    String? orderId,
+    String? buyerId,
+    List<CartItem>? items,
+    double? totalAmount,
+    OrderStatus? status,
+    DateTime? orderDate,
+    String? deliveryAddress,
+    String? paymentId,
+    bool? isDeliveryConfirmed,
+    DateTime? deliveredAt,
+  }) {
+    return Order(
+      orderId: orderId ?? this.orderId,
+      buyerId: buyerId ?? this.buyerId,
+      items: items ?? this.items,
+      totalAmount: totalAmount ?? this.totalAmount,
+      status: status ?? this.status,
+      orderDate: orderDate ?? this.orderDate,
+      deliveryAddress: deliveryAddress ?? this.deliveryAddress,
+      paymentId: paymentId ?? this.paymentId,
+      isDeliveryConfirmed: isDeliveryConfirmed ?? this.isDeliveryConfirmed,
+      deliveredAt: deliveredAt ?? this.deliveredAt,
+    );
+  }
 
   factory Order.fromMap(Map<String, dynamic> map) {
     return Order(
       orderId: map['orderId'],
       buyerId: map['buyerId'],
-      sellerId: map['sellerId'],
       items: (map['items'] as List)
-          .map((e) => OrderItem.fromMap(e as Map<String, dynamic>))
+          .map((e) => CartItem.fromMap(e as Map<String, dynamic>))
           .toList(),
       totalAmount: (map['totalAmount'] as num).toDouble(),
       status: orderStatusFromString(map['status']),
@@ -69,7 +93,6 @@ class Order {
     return {
       'orderId': orderId,
       'buyerId': buyerId,
-      'sellerId': sellerId,
       'items': items.map((e) => e.toMap()).toList(),
       'totalAmount': totalAmount,
       'status': orderStatusToString(status),
@@ -79,52 +102,6 @@ class Order {
       'isDeliveryConfirmed': isDeliveryConfirmed,
       'deliveredAt':
           deliveredAt != null ? Timestamp.fromDate(deliveredAt!) : null,
-    };
-  }
-}
-
-class OrderItem {
-  final String itemId;
-  final String productId;
-  final String productTitle;
-  final String sellerId;
-  final double price;
-  final int quantity;
-  final String snapshotImage;
-
-  OrderItem({
-    required this.itemId,
-    required this.productId,
-    required this.productTitle,
-    required this.sellerId,
-    required this.price,
-    required this.quantity,
-    required this.snapshotImage,
-  });
-
-  double get subtotal => price * quantity;
-
-  factory OrderItem.fromMap(Map<String, dynamic> map) {
-    return OrderItem(
-      itemId: map['itemId'],
-      productId: map['productId'],
-      productTitle: map['productTitle'],
-      sellerId: map['sellerId'],
-      price: (map['price'] as num).toDouble(),
-      quantity: map['quantity'] as int,
-      snapshotImage: map['snapshotImage'],
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'itemId': itemId,
-      'productId': productId,
-      'productTitle': productTitle,
-      'sellerId': sellerId,
-      'price': price,
-      'quantity': quantity,
-      'snapshotImage': snapshotImage,
     };
   }
 }

@@ -18,6 +18,10 @@ class ProfileScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+        centerTitle: true,
+      ),
       body: FutureBuilder(
         future: services.getOwnerByProductId(_auth.currentUser!.uid),
         builder: (context, snapshot) {
@@ -29,95 +33,77 @@ class ProfileScreen extends StatelessWidget {
             return const Center(child: Text("User not found."));
           } else {
             final user = snapshot.data!;
-            return CustomScrollView(
-              slivers: [
-                // Header Section
-                SliverAppBar(
-                  expandedHeight: 280, // Increased to accommodate title
-                  pinned: true,
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  foregroundColor: Colors.white,
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xff8E6CEF), Color(0xff6A1B9A)],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
+            final email = _auth.currentUser?.email ?? "No email";
+
+            return ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  elevation: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CircleAvatar(
+                          radius: 40,
+                          backgroundColor: const Color(0xff8E6CEF),
+                          child: const Icon(Icons.person,
+                              size: 40, color: Colors.white),
                         ),
-                      ),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const SizedBox(height: 20),
-                            Text(
-                              "Profile",
-                              style: kTextStyle(
-                                size: 24,
-                                color: Colors.white,
-                                isBold: true,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            CircleAvatar(
-                              radius: 50,
-                              backgroundColor: Colors.white,
-                              child: Icon(Icons.person, size: 50, color: Colors.grey),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              user.username,
-                              style: kTextStyle(size: 28, color: Colors.white, isBold: true),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              user.bio ?? "No bio",
-                              style: kTextStyle(size: 16, color: Colors.white70),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                for (int i = 0; i < 5; i++)
-                                  Icon(
-                                    i < 4 ? Icons.star : Icons.star_border,
-                                    color: Colors.yellow,
-                                    size: 18,
-                                  ),
-                              ],
-                            ),
-                          ],
+                        const SizedBox(height: 16),
+                        Text(
+                          user.username,
+                          style: kTextStyle(size: 20, isBold: true),
                         ),
-                      ),
+                        const SizedBox(height: 4),
+                        Text(
+                          email,
+                          style: kTextStyle(
+                              size: 14,
+                              color: theme.colorScheme.onSurfaceVariant),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          user.bio ?? "No bio available",
+                          style: kTextStyle(
+                              size: 14,
+                              color: theme.colorScheme.onSurfaceVariant),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                // Menu Options Section
-                SliverPadding(
-                  padding: const EdgeInsets.all(16),
-                  sliver: SliverList(
-                    delegate: SliverChildListDelegate([
-                      _buildMenuCard(context, Icons.shopping_bag_outlined, 'Orders', () {
-                        // Navigate to Orders
-                      }, theme),
-                      _buildMenuCard(context, Icons.shopping_cart_outlined, 'Cart', () {
-                        context.push(CartPage());
-                      }, theme),
-                      _buildMenuCard(context, Icons.settings_outlined, 'Settings', () {
-                        // Navigate to Settings
-                      }, theme),
-                      const SizedBox(height: 20),
-                      Divider(color: Colors.grey.shade300),
-                      const SizedBox(height: 10),
-                      _buildMenuCard(context, Icons.logout, 'Logout', () {
-                        showLogoutConfirmationDialog(context, () {
-                          context.read<Authprovider>().signOut(context);
-                        });
-                      }, theme, color: Colors.red),
-                    ]),
-                  ),
+                const SizedBox(height: 24),
+
+                // Options
+                _buildMenuItem(context, Icons.shopping_bag_outlined, "Orders",
+                    () {
+                  // Navigate to orders
+                }),
+                _buildMenuItem(context, Icons.shopping_cart_outlined, "Cart",
+                    () {
+                  context.push(CartPage());
+                }),
+                _buildMenuItem(context, Icons.settings_outlined, "Settings",
+                    () {
+                  // Navigate to settings
+                }),
+                const Divider(height: 32),
+                _buildMenuItem(
+                  context,
+                  Icons.logout,
+                  "Logout",
+                  () {
+                    showLogoutConfirmationDialog(context, () {
+                      context.read<Authprovider>().signOut(context);
+                      
+                    });
+                  },
+                  iconColor: Colors.red,
+                  textColor: Colors.red,
                 ),
               ],
             );
@@ -127,36 +113,28 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuCard(
+  Widget _buildMenuItem(
     BuildContext context,
     IconData icon,
     String title,
-    VoidCallback onTap,
-    ThemeData theme, {
-    Color? color,
+    VoidCallback onTap, {
+    Color? iconColor,
+    Color? textColor,
   }) {
-    return Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        leading: Icon(
-          icon,
-          color: color ?? Color(0xff8E6CEF),
-          size: 28,
-        ),
-        title: Text(
-          title,
-          style: kTextStyle(size: 16, color: theme.colorScheme.onSurface, isBold: true),
-        ),
-        trailing: Icon(
-          Icons.arrow_forward_ios_rounded,
+    final theme = Theme.of(context);
+    return ListTile(
+      leading: Icon(icon, color: iconColor ?? const Color(0xff8E6CEF)),
+      title: Text(
+        title,
+        style: kTextStyle(
           size: 16,
-          color: Colors.grey,
+          color: textColor ?? theme.colorScheme.onSurface,
+          isBold: true,
         ),
-        onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
+      trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
     );
   }
 }

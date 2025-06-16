@@ -3,14 +3,18 @@ import 'package:shopify/models/cart_item.dart';
 import 'package:shopify/services/database/database.dart';
 
 class Cartprovider with ChangeNotifier {
+  Cartprovider() {
+    fetchCartItems();
+  }
   List<CartItem> _cartItems = [];
   List<CartItem> get items => _cartItems;
   DatabaseService service = DatabaseService();
   double get totalPrice =>
       _cartItems.fold(0, (sum, item) => sum + item.price * item.quantity);
-  int get totalQuantity => _cartItems.fold(0, (sum, item) => sum + item.quantity);
-    List<CartItem> get cartItems => _cartItems;
-
+  int get totalQuantity =>
+      _cartItems.fold(0, (sum, item) => sum + item.quantity);
+  List<CartItem> get cartItems => _cartItems;
+ 
   int getQuantity(String productId) {
     final matchingItems =
         _cartItems.where((item) => item.productId == productId);
@@ -48,8 +52,9 @@ class Cartprovider with ChangeNotifier {
     return null;
   }
 
-  Future<void> loadCartItems(String uid) async {
-    _cartItems = await service.readCartItems(uid);
+  Future<void> clearCart(String uid) async {
+    await service.clearCart(uid);
+    _cartItems.clear();
     notifyListeners();
   }
 }

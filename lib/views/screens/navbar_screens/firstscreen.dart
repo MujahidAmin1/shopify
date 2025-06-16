@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:shopify/models/product.dart';
+import 'package:shopify/providers/cartprovider.dart';
 import 'package:shopify/services/database/database.dart';
 import 'package:shopify/utils/ktextStyle.dart';
 import 'package:shopify/utils/navigate.dart';
@@ -23,6 +24,7 @@ class _FirstscreenState extends State<Firstscreen> {
   int _selectedIndex = 0;
 
   DatabaseService databaseService = DatabaseService();
+  
 
   @override
   Widget build(BuildContext context) {
@@ -116,16 +118,19 @@ class _FirstscreenState extends State<Firstscreen> {
                       final currentProduct = filteredProducts[index];
                       return GestureDetector(
                         onTap: () {
-                          context.push(ProductDetailedScreen(
-                              product: currentProduct, looped: false,
-                              ));
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return ProductDetailedScreen(
+                              product: currentProduct,
+                              looped: false,
+                            );
+                          }));
                         },
                         child: ProductDisplay(
-                          img: currentProduct.imageUrls.first,
-                          title: currentProduct.title,
-                          description: currentProduct.description,
-                          price: currentProduct.price
-                        ),
+                            img: currentProduct.imageUrls.first,
+                            title: currentProduct.title,
+                            description: currentProduct.description,
+                            price: currentProduct.price),
                       );
                     },
                   );
@@ -134,7 +139,8 @@ class _FirstscreenState extends State<Firstscreen> {
             ),
           ],
         ),
-      ), floatingActionButton: FloatingActionButton(
+      ),
+      floatingActionButton: FloatingActionButton(
         backgroundColor: Color(0xff8E6CEF),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(50),

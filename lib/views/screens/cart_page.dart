@@ -1,12 +1,15 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:another_flushbar/flushbar.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shopify/models/order.dart';
 import 'package:shopify/providers/cartprovider.dart';
 import 'package:shopify/services/database/database.dart';
+import 'package:shopify/services/payment/payment_services.dart';
 import 'package:shopify/utils/price_format.dart';
 import 'package:shopify/views/widgets/custom_cart_tile.dart';
-import 'package:intl/intl.dart';
 import 'package:shopify/views/widgets/order_summary_widget.dart';
+import 'package:uuid/uuid.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -18,6 +21,7 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   DatabaseService service = DatabaseService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  PaymentServices paymentService = PaymentServices();
   @override
   Widget build(BuildContext context) {
     var cartProvider = Provider.of<Cartprovider>(context);
@@ -78,12 +82,48 @@ class _CartPageState extends State<CartPage> {
                       OrderSummarySection(
                         price: cartProvider.totalPrice,
                         quantity: cartProvider.totalQuantity,
-                        onPlaceOrder: () {},
+                        onPlaceOrder: () async {
+                          var order = Order(
+                            orderId: Uuid().v4(),
+                            buyerId: _auth.currentUser!.uid,
+                            items: cartItems,
+                            totalAmount: cartProvider.totalPrice,
+                            status: OrderStatus.processing,
+                            orderDate: DateTime.now(),
+                            deliveryAddress: "deliveryAddress",
+                          );
+                          var makeOrder = await paymentService.makePayment(
+                            context,
+                            _auth.currentUser!.email!,
+                            cartProvider.totalPrice,
+                            order,
+                          );
+                          if (makeOrder!.status == OrderStatus.paid) {
+                            Flushbar(
+                              message: 'Payment Successful',
+                              duration: const Duration(seconds: 6),
+                              backgroundColor: Colors.green,
+                              flushbarPosition: FlushbarPosition.TOP,
+                              icon: const Icon(Icons.check_circle,
+                                  color: Colors.white),
+                            ).show(context);
+                          } else {
+                            Flushbar(
+                              message: 'Payment Failed',
+                              duration: const Duration(seconds: 6),
+                              backgroundColor: Colors.red,
+                              flushbarPosition: FlushbarPosition.TOP,
+                              icon:
+                                  const Icon(Icons.error, color: Colors.white),
+                            ).show(context);
+                          }
+                        },
                       ),
                     ],
                   );
                 }
-              }),
+              },
+            ),
     );
   }
 }
