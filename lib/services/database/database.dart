@@ -188,7 +188,7 @@ class DatabaseService {
         .get();
     return snapshot.docs.map((doc) => CartItem.fromMap(doc.data())).toList();
   }
-
+  
   Future updateProduct(Product product) async {
     final updatedProd = product.copyWith(
       productId: product.productId,
